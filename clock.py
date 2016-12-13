@@ -1,19 +1,17 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-from scrapers.reddit_scraper import RedditScraper
-
-import logging
-import sys
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+from rq import Queue
+from worker import conn
+from run import run_gather_threads, run_gather_comments
 
 sched = BlockingScheduler()
 
+q = Queue(connection=conn)
+
 def gather_threads():
-  rs = RedditScraper()
-  rs.gather_threads()
+  q.enqueue(run_gather_threads)
 
 def gather_comments():
-  rs = RedditScraper()
-  rs.gather_comments()
+  q.enqueue(run_gather_comments)
 
 sched.add_job(gather_threads) #run immediately
 sched.add_job(gather_threads, 'interval', minutes=30)
