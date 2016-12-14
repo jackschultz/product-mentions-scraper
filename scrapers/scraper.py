@@ -10,8 +10,8 @@ from session import session
 class Scraper(object):
 
   AMAZON_MATCH_PATTERN = "(dp\/|gp\/product\/|gp\/offer\-listing\/)([a-zA-Z0-9]{10})"
-  AWS_ACCESS_KEY_ID = 'AKIAIHTT6ORMUADXEIQA'
-  AWS_SECRET_ACCESS_KEY = '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'
+  AWS_ACCESS_KEY_ID = ''
+  AWS_SECRET_ACCESS_KEY = ''
   AWS_ASSOCIATE_TAG = 'pmentions-20'
 
   REGIONS = {
