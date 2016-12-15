@@ -23,7 +23,6 @@ class RedditGatherer(Gatherer):
   THREAD_SEARCH_URL = "https://www.reddit.com/search?q=amazon.com&sort=new&t=hour&limit=100"
 
   THREAD_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})"
-  #COMMENT_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})\/([A-zÀ-ú0-9_-]*)\/([a-zA-Z0-9]{7})"
   COMMENT_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})\/([a-zA-Z0-9_-]*)\/([a-zA-Z0-9]{7})"
 
   def find_site_comment_info(self, comment):
