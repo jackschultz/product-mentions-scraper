@@ -13,7 +13,7 @@ q = Queue(connection=conn)
 
 def run_gather_threads():
 
-  scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type="gather_thread")
+  scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type="thread")
   session.add(scrape_log)
   session.commit()
 
@@ -43,6 +43,38 @@ def run_gather_threads():
   scrape_log.end_time = datetime.now()
   session.add(scrape_log)
   session.commit()
+
+def run_gather_comments():
+
+  scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type="comment")
+  session.add(scrape_log)
+  session.commit()
+
+  try:
+    rg = RedditGatherer()
+    ae = AmazonExtractor()
+    threads = rg.gather_comments()
+
+    scrape_log.pages_count = 5 #all eight pages for now
+    scrape_log.start_ident = rg.find_site_comment_ident(threads[0][0])
+    scrape_log.start_end = rg.find_site_comment_ident(threads[-1][0])
+
+    comments_count = 0
+    for thread_url, _, html_string in threads:
+      if ae.check_possible_match(html_string):
+        print thread_url
+        comments_count += 1
+        q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=1)
+    scrape_log.comments_count = comments_count
+  except Exception as e:
+    #TODO re-enqueue this job because it failed?
+    scrape_log.error = True
+    scrape_log.error_message = e.message
+
+  scrape_log.end_time = datetime.now()
+  session.add(scrape_log)
+  session.commit()
+
 
 def run_gather_attrs_from_url(thread_url, html_string, data_index=0):
   rg = RedditGatherer()
@@ -87,39 +119,6 @@ def run_extract_mentions_from_attrs(attrs):
     asins = ae.extract_mentions_from_attrs(attrs)
     scrape_log.comments_count = 1 #one url
     scrape_log.mentions_count = len(asins)
-  except Exception as e:
-    #TODO re-enqueue this job because it failed?
-    scrape_log.error = True
-    scrape_log.error_message = e.message
-
-  scrape_log.end_time = datetime.now()
-  session.add(scrape_log)
-  session.commit()
-
-def run_gather_comments():
-
-  scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type="comments")
-  session.add(scrape_log)
-  session.commit()
-
-  try:
-    rg = RedditGatherer()
-    ae = AmazonExtractor()
-    threads = rg.gather_comments()
-
-    scrape_log.pages_count = 5 #all eight pages for now
-    scrape_log.start_ident = rg.find_site_comment_ident(threads[0][0])
-    scrape_log.start_end = rg.find_site_comment_ident(threads[-1][0])
-
-    comments_count = 0
-    for thread_url, _, html_string in threads:
-      if ae.check_possible_match(html_string):
-        print thread_url
-        comments_count += 1
-        q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=1)
-      else:
-        print "no match"
-    scrape_log.comments_count = comments_count
   except Exception as e:
     #TODO re-enqueue this job because it failed?
     scrape_log.error = True
