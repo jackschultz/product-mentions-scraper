@@ -2,7 +2,6 @@ import os
 
 from models import ScrapeLog
 from session import session
-from scrapers.reddit_scraper import RedditScraper
 
 from flask import Flask, render_template, jsonify
 
