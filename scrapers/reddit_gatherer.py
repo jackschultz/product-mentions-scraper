@@ -27,7 +27,10 @@ class RedditGatherer(Gatherer):
 
   def find_site_comment_info(self, comment):
     permalink = comment.find("a", class_="bylink")["href"]
-    ident = re.match(self.COMMENT_SITE_IDENT_MATCHER, permalink).groups()[6]
+    try:
+      ident = re.match(self.COMMENT_SITE_IDENT_MATCHER, permalink).groups()[6]
+    except:
+      ident = permalink.split("/")[8] #issues with accents
     html_string = str(comment)
     return (permalink, ident, html_string)
 
