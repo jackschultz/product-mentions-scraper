@@ -45,9 +45,7 @@ class Extractor(object):
     product = session.query(Product).filter_by(asin=asin).first()
     logging.info(product)
     if not product:
-      print "QWERQWER"
       attrs = self.get_product_from_amazon_api(asin, region='US')
-      print "ASDFASDF"
       if attrs:
         product_group = self.find_or_create_product_group(attrs['product_group_string'])
         attrs['product_group_id'] = product_group.id

@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import bottlenose
+import os
 
 import logging
 logging.getLogger().setLevel(logging.INFO)
@@ -12,8 +13,8 @@ from extractor import Extractor
 class AmazonExtractor(Extractor):
 
   AMAZON_MATCH_PATTERN = "(dp\/|gp\/product\/|gp\/offer\-listing\/)([a-zA-Z0-9]{10})"
-  AWS_ACCESS_KEY_ID = 'AKIAIWJL5AW2GVB47VQA'
-  AWS_SECRET_ACCESS_KEY = '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'
+  AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+  AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
   AWS_ASSOCIATE_TAG = 'pmentions-20'
 
   REGIONS = {
@@ -37,6 +38,12 @@ class AmazonExtractor(Extractor):
   def __str__(self):
     ""
 
+  def check_possible_match(self, html_string):
+    matches = re.findall(self.AMAZON_MATCH_PATTERN, html_string)
+    if matches: #meaning we have a product
+      return True
+    return False
+
   def extract_mentions_from_attrs(self, attrs):
     text = attrs["text"]
     asins = []
@@ -45,6 +52,7 @@ class AmazonExtractor(Extractor):
       asins.append(asin)
     for asin in set(asins):
       self.create_mentions(asin, attrs)
+    return asins
 
   def error_handler(self, err):
     ex = err['exception']
@@ -71,7 +79,6 @@ class AmazonExtractor(Extractor):
       parsed = BeautifulSoup(response, "lxml")
       logging.info(parsed.error)
       logging.info(parsed.productgroup)
-      print parsed
       if self.error_check_amazon_api(parsed.error):
         title = parsed.title.text
         product_group_string = parsed.productgroup.text
@@ -83,9 +90,8 @@ class AmazonExtractor(Extractor):
         url = "https://www.amazon.com/dp/%s/" % asin
         return {'title': '', 'product_group_string': 'Unknown', 'url': url, 'image_url': ''}
     except Exception as e:
-      print "ASDF"
       print e
-      print "QWER"
+      #TODO return error
 
   def create_mentions(self, asin, comment_attrs):
     logging.info(comment_attrs)
