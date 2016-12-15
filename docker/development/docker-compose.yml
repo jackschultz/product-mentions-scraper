@@ -1,0 +1,66 @@
+# dev
+version: '2'
+
+services:
+ app:
+   build: ../../
+   command: /venv/bin/python app.py
+   volumes:
+     - ../../:/product_mentions_scraper
+   environment:
+     - PMS_DATABASE_URI=postgresql://postgres:password@postgres:5432/postgres
+   depends_on:
+     - postgres
+   ports:
+     - "5000:5000"
+   networks:
+     - db
+
+ worker:
+   build: ../../
+   command: /venv/bin/python worker.py
+   volumes:
+     - ../../:/product_mentions_scraper
+   environment:
+     - PMS_DATABASE_URI=postgresql://postgres:password@postgres:5432/postgres
+     - REDIS_URL=redis://redis:6379/0
+   depends_on:
+     - postgres
+     - redis
+   networks:
+     - db
+     - redis
+
+ clock:
+   build: ../../
+   command: /venv/bin/python clock.py
+   volumes:
+     - ../../:/product_mentions_scraper
+   environment:
+     - REDIS_URL=redis://redis:6379/0
+   depends_on:
+     - redis
+   networks:
+     - redis
+
+ redis:
+   image: redis:3.0.7
+   volumes:
+     - redis_data:/data:rw
+   networks:
+     - redis
+
+ postgres:
+   image: postgres:9.5.2
+   volumes:
+     - postgres_data:/var/lib/postgresql/data:rw
+   networks:
+     - db
+
+volumes:
+ redis_data:
+ postgres_data:
+
+networks:
+ db:
+ redis:

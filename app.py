@@ -1,17 +1,23 @@
 import os
 
-from models import ScrapeLog
+from models import ScrapeLog, Mention, Comment
 from session import session
-from scrapers.reddit_scraper import RedditScraper
 
 from flask import Flask, render_template, jsonify
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
+  hour_ago = datetime.now() - timedelta(hours = 1)
+  day_ago = datetime.now() - timedelta(hours=24)
+  week_ago = datetime.now() - timedelta(days=7)
   logs = session.query(ScrapeLog).order_by("id desc").all()
-  return render_template('home.html', logs=logs)
+  hour_mention_count = session.query(Mention).filter(Mention.created_at > hour_ago).count()
+  day_mention_count = session.query(Mention).filter(Mention.created_at > day_ago).count()
+  week_mention_count = session.query(Mention).filter(Mention.created_at > week_ago).count()
+  return render_template('home.html', logs=logs, hour_mention_count=hour_mention_count, day_mention_count=day_mention_count, week_mention_count=week_mention_count)
 
 @app.route("/threads")
 def threads():
