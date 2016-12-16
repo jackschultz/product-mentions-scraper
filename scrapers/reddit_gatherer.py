@@ -27,26 +27,30 @@ class RedditGatherer(Gatherer):
 
   def find_site_comment_info(self, comment):
     permalink = comment.find("a", class_="bylink")["href"]
-    try:
-      ident = re.match(self.COMMENT_SITE_IDENT_MATCHER, permalink).groups()[6]
-    except:
-      ident = permalink.split("/")[8] #issues with accents
+    ident = self.find_site_comment_ident(permalink)
     html_string = str(comment)
     return (permalink, ident, html_string)
 
   def find_site_thread_info(self, post):
     permalink = post.find("a", class_="search-title")["href"].split("?")[0]
-    ident = re.match(self.THREAD_SITE_IDENT_MATCHER, permalink).groups()[4]
+    ident = self.find_site_thread_ident(permalink)
     html_string = str(post)
     return (permalink, ident, html_string)
 
-
   def find_site_thread_ident(self, permalink):
-    ident = re.match(self.THREAD_SITE_IDENT_MATCHER, permalink).groups()[4]
+    try:
+      ident = re.match(self.THREAD_SITE_IDENT_MATCHER, permalink).groups()[4]
+    except:
+      print "Error with find_site_thread_ident url: " + permalink
+      ident = permalink.split("/")[6] #issues with accents
     return ident
 
   def find_site_comment_ident(self, permalink):
-    ident = re.match(self.COMMENT_SITE_IDENT_MATCHER, permalink).groups()[6]
+    try:
+      ident = re.match(self.COMMENT_SITE_IDENT_MATCHER, permalink).groups()[6]
+    except:
+      print "Error with find_site_comment_ident url: " + permalink
+      ident = permalink.split("/")[8] #issues with accents
     return ident
 
   def gather_comments(self):
