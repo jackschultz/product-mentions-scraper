@@ -27,7 +27,10 @@ def log_and_time(job_type):
       try:
         log_info = function(*args, **kwargs)
       except Exception as e:
+        log_info = {}
         scrape_log.error = True
+        print "Error"
+        print e
         scrape_log.error_message = e.message
 
       scrape_log.end_time = datetime.now()
