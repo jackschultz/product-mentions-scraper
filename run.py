@@ -109,7 +109,8 @@ def run_gather_attrs_from_url(thread_url, html_string, data_index=0):
 
 def run_extract_mentions_from_attrs(attrs):
 
-  scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type="extract_amazon")
+  ident = attrs["site_comment_ident"]
+  scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type="extract_amazon", start_ident=ident)
   session.add(scrape_log)
   session.commit()
 
