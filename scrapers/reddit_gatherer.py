@@ -61,6 +61,8 @@ class RedditGatherer(Gatherer):
     next_comment_page_url = self.COMMENT_URL
     while True:
       response = requests.get(next_comment_page_url, headers=headers)
+      if response.status_code != 200:
+        pass
       result = BeautifulSoup(response.text, 'html.parser')
       found_comments = result.find_all("div", class_="comment")
       comments.extend(found_comments)

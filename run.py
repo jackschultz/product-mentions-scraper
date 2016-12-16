@@ -69,7 +69,7 @@ def run_gather_comments():
   except Exception as e:
     #TODO re-enqueue this job because it failed?
     scrape_log.error = True
-    scrape_log.error_message = e.message
+    scrape_log.error_message = e
 
   scrape_log.end_time = datetime.now()
   session.add(scrape_log)
