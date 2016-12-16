@@ -39,10 +39,10 @@ class RedditGatherer(Gatherer):
     permalink = post.find("a", class_="search-title")["href"].split("?")[0]
     ident = self.find_site_thread_ident(permalink)
     try:
-      html_string = str(comment)
+      html_string = str(post)
     except Exception as e:
       print comment
-      html_string = str(comment)
+      html_string = str(post)
     return (permalink, ident, html_string)
 
   def find_site_thread_ident(self, permalink):
@@ -62,31 +62,37 @@ class RedditGatherer(Gatherer):
     return ident
 
   def gather_comments(self):
-    max_page_search = 5
+    try:
+      max_page_search = 5
 
-    comments = []
-    page_count = 0
-    next_comment_page_url = self.COMMENT_URL
-    while True:
-      response = requests.get(next_comment_page_url, headers=headers)
-      print "Status code: " + str(response.status_code)
-      if response.status_code != 200:
-        pass
-      result = BeautifulSoup(response.text, 'html.parser')
-      found_comments = result.find_all("div", class_="comment")
-      comments.extend(found_comments)
-      next_comment_page_url = result.find("span", class_="next-button").find("a")["href"]
-      page_count += 1
-      if page_count >= max_page_search:
-        break
+      comments = []
+      page_count = 0
+      next_comment_page_url = self.COMMENT_URL
+      while True:
+        response = requests.get(next_comment_page_url, headers=headers)
+        print "Status code: " + str(response.status_code)
+        if response.status_code != 200:
+          pass
+        result = BeautifulSoup(response.text, 'html.parser')
+        found_comments = result.find_all("div", class_="comment")
+        comments.extend(found_comments)
+        next_comment_page_url = result.find("span", class_="next-button").find("a")["href"]
+        page_count += 1
+        if page_count >= max_page_search:
+          break
 
-    threads = []
-    for comment in comments:
-      permalink, sci, html_string = self.find_site_comment_info(comment)
-      threads.append((permalink, sci, html_string))
+      threads = []
+      for comment in comments:
+        permalink, sci, html_string = self.find_site_comment_info(comment)
+        threads.append((permalink, sci, html_string))
 
-    threads.reverse()
-    return threads
+      threads.reverse()
+      return threads
+    except Exception as e:
+      exc_type, exc_obj, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print(exc_type, fname, exc_tb.tb_lineno)
+      raise e
 
   def gather_threads(self):
 
