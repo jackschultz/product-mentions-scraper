@@ -61,6 +61,7 @@ class RedditGatherer(Gatherer):
     next_comment_page_url = self.COMMENT_URL
     while True:
       response = requests.get(next_comment_page_url, headers=headers)
+      print "Status code: " + str(response.status_code)
       if response.status_code != 200:
         pass
       result = BeautifulSoup(response.text, 'html.parser')

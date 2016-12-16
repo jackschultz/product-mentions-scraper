@@ -19,7 +19,7 @@ def log_and_time(job_type):
     @wraps(function)
     def log_work(*args, **kwargs):
 
-      print job_type
+      print "Running " + job_type
       scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type=job_type)
       session.add(scrape_log)
       session.commit()
@@ -32,6 +32,8 @@ def log_and_time(job_type):
         print "Error"
         print e
         scrape_log.error_message = e.message
+      else:
+        print "Success"
 
       scrape_log.end_time = datetime.now()
       session.add(scrape_log)
