@@ -11,6 +11,27 @@ from worker import conn
 
 q = Queue(connection=conn)
 
+
+def log_and_time(job_type):
+  def log(function):
+    scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type=job_type)
+    session.add(scrape_log)
+    session.commit()
+
+    try:
+      log_info = function()
+    except Exception as e:
+      scrape_log.error = True
+      scrape_log.error_message = e.message
+
+    scrape_log.end_time = datetime.now()
+    session.add(scrape_log)
+    session.commit()
+
+    return log_info
+
+  return log
+
 def run_gather_threads():
 
   scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type="thread")
