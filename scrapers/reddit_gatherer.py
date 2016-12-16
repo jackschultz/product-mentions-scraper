@@ -4,6 +4,7 @@ from datetime import datetime
 import re
 import sys
 import linecache
+import os
 
 from bs4 import BeautifulSoup
 
@@ -28,21 +29,13 @@ class RedditGatherer(Gatherer):
   def find_site_comment_info(self, comment):
     permalink = comment.find("a", class_="bylink")["href"]
     ident = self.find_site_comment_ident(permalink)
-    try:
-      html_string = str(comment)
-    except Exception as e:
-      print comment
-      html_string = str(comment)
+    html_string = str(comment)
     return (permalink, ident, html_string)
 
   def find_site_thread_info(self, post):
     permalink = post.find("a", class_="search-title")["href"].split("?")[0]
     ident = self.find_site_thread_ident(permalink)
-    try:
-      html_string = str(post)
-    except Exception as e:
-      print comment
-      html_string = str(post)
+    html_string = str(post)
     return (permalink, ident, html_string)
 
   def find_site_thread_ident(self, permalink):
