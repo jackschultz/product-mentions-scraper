@@ -5,6 +5,9 @@ from session import session
 
 from datetime import datetime
 
+
+from functools import wraps
+
 import re
 from rq import Queue
 from worker import conn
@@ -13,25 +16,28 @@ q = Queue(connection=conn)
 
 
 def log_and_time(job_type):
-  def log(function):
+  def log_decorator(function):
+    @wraps(function)
+    def log_work(*args, **kwargs):
 
-    scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type=job_type)
-    session.add(scrape_log)
-    session.commit()
+      print job_type
+      scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type=job_type)
+      session.add(scrape_log)
+      session.commit()
 
-    try:
-      log_info = function()
-    except Exception as e:
-      scrape_log.error = True
-      scrape_log.error_message = e.message
+      try:
+        log_info = function(*args, **kwargs)
+      except Exception as e:
+        scrape_log.error = True
+        scrape_log.error_message = e.message
 
-    scrape_log.end_time = datetime.now()
-    session.add(scrape_log)
-    session.commit()
+      scrape_log.end_time = datetime.now()
+      session.add(scrape_log)
+      session.commit()
 
-    return log_info
-
-  return log
+      return log_info #returning what the decorated function returns
+    return log_work
+  return log_decorator #returning the decorator function
 
 @log_and_time("thread")
 def run_gather_threads():
@@ -48,7 +54,7 @@ def run_gather_threads():
     if ae.check_possible_match(html_string):
       print thread_url
       comments_count += 1
-      #q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=0)
+      q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=0)
     else:
       print "no match"
 
@@ -71,11 +77,10 @@ def run_gather_comments():
     if ae.check_possible_match(html_string):
       print thread_url
       comments_count += 1
-      #q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=1)
+      q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=1)
 
   retval = {'pages_count': pages_count, 'start_ident': start_ident, 'end_ident': end_ident, 'comments_count': comments_count}
   return retval
-
 
 @log_and_time("reddit_attrs")
 def run_gather_attrs_from_url(thread_url, html_string, data_index=0):
@@ -104,8 +109,9 @@ def run_extract_mentions_from_attrs(attrs):
   print "running extraction"
   ae = AmazonExtractor()
   asins = ae.extract_mentions_from_attrs(attrs)
-  scrape_log.comments_count = 1 #one url
-  scrape_log.mentions_count = len(asins)
+  comments_count = 1 #one url
+  mentions_count = len(asins)
 
+  retval = {'comments_count': comments_count, 'mentions_count': mentions_count}
   return retval
 
