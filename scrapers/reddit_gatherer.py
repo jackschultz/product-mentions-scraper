@@ -27,10 +27,16 @@ class RedditGatherer(Gatherer):
   COMMENT_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})\/([a-zA-Z0-9_-]*)\/([a-zA-Z0-9]{7})"
 
   def find_site_comment_info(self, comment):
-    permalink = comment.find("a", class_="bylink")["href"]
-    ident = self.find_site_comment_ident(permalink)
-    html_string = str(comment)
-    return (permalink, ident, html_string)
+    try:
+      permalink = comment.find("a", class_="bylink")["href"]
+      ident = self.find_site_comment_ident(permalink)
+      html_string = str(comment)
+      return (permalink, ident, html_string)
+    except Exception as e:
+      exc_type, exc_obj, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print(exc_type, fname, exc_tb.tb_lineno)
+      raise e
 
   def find_site_thread_info(self, post):
     permalink = post.find("a", class_="search-title")["href"].split("?")[0]
