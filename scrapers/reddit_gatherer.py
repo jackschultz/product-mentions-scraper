@@ -28,9 +28,7 @@ class RedditGatherer(Gatherer):
 
   def find_site_comment_info(self, comment):
     try:
-      print "finding permalink"
       permalink = comment.find("a", class_="bylink")["href"]
-      print "found permalink: " + permalink
       ident = self.find_site_comment_ident(permalink)
       html_string = str(comment)
       return (permalink, ident, html_string)
