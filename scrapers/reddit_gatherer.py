@@ -29,12 +29,12 @@ class RedditGatherer(Gatherer):
   def find_site_comment_info(self, comment):
     try:
       permalink = comment.find("a", class_="bylink")["href"]
-      print permalink
-      ident = self.find_site_comment_ident(permalink)
+      ident = self.find_site_comment_ident(permalink.encode('utf-8'))
       html_string = str(comment)
       return (permalink, ident, html_string)
     except Exception as e:
       print "comment: " + str(comment)
+      print permalink.encode('utf-8')
       exc_type, exc_obj, exc_tb = sys.exc_info()
       fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
       print(exc_type, fname, exc_tb.tb_lineno)
