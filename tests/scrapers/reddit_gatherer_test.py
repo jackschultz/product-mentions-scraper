@@ -1,17 +1,17 @@
 import unittest
 import json
-from scrapers.reddit_scraper import RedditScraper
+from scrapers.reddit_Gathere import RedditGatherer
 from models import Site, Subsite, Comment, Product, Mention, ProductGroup, ScrapeLog
 from session import session
 import os
 from bs4 import BeautifulSoup
 
-class TestRedditScraper(unittest.TestCase):
+class TestRedditGatherer(unittest.TestCase):
 
   def setUp(self):
     #create subsite
     self.find_or_create_site()
-    self.rs = RedditScraper()
+    self.rs = RedditGatherer()
 
   def find_or_create_site(self):
     reddit = session.query(Site).filter_by(name="Reddit").first()

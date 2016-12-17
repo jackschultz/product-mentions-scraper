@@ -21,12 +21,12 @@ def home():
 
 @app.route("/threads")
 def threads():
-  logs = session.query(ScrapeLog).filter(ScrapeLog.scrape_type == 'thread').order_by("id desc").limit(500)
+  logs = session.query(ScrapeLog).filter(ScrapeLog.job_type == 'thread').order_by("id desc").limit(500)
   return render_template('home.html', logs=logs)
 
 @app.route("/comments")
 def comments():
-  logs = session.query(ScrapeLog).filter(ScrapeLog.scrape_type == 'comment').order_by("id desc").limit(500)
+  logs = session.query(ScrapeLog).filter(ScrapeLog.job_type == 'comment').order_by("id desc").limit(500)
   return render_template('home.html', logs=logs)
 
 if __name__ == "__main__":

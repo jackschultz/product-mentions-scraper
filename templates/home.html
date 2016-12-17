@@ -36,7 +36,7 @@
         {% for log in logs %}
           <tr>
             <td>{{log.id}}</td>
-            <td>{{log.scrape_type}}</td>
+            <td>{{log.job_type}}</td>
             <td>{{log.start_time.strftime("%d %b %Y %I:%M:%S%p") if log.start_time }}</td>
             <td>{{log.end_time.strftime("%d %b %Y %I:%M:%S%p")  if log.end_time }}</td>
             <td>{{log.start_ident}}</td>

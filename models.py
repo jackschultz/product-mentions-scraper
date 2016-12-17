@@ -95,7 +95,7 @@ class ScrapeLog(Base):
   __tablename__ = 'scrape_logs'
 
   id = Column(Integer, primary_key=True)
-  scrape_type = Column(String)
+  job_type = Column(String)
   start_time = Column(DateTime, default=datetime.now)
   end_time = Column(DateTime)
   start_ident = Column(String)

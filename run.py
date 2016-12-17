@@ -20,7 +20,7 @@ def log_and_time(job_type):
     def log_work(*args, **kwargs):
 
       print "Running " + job_type
-      scrape_log = ScrapeLog(start_time=datetime.now(), scrape_type=job_type)
+      scrape_log = ScrapeLog(start_time=datetime.now(), job_type=job_type)
       session.add(scrape_log)
       session.commit()
 
