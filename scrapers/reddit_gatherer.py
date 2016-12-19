@@ -20,7 +20,7 @@ headers = {"User-Agent": "Product Mentions"}
 class RedditGatherer(Gatherer):
 
   BASE_URL = "http://www.reddit.com"
-  COMMENT_URL = "https://www.reddit.com/comments/?limit=100"
+  COMMENT_URL = "https://www.reddit.com/r/all/comments/?limit=100"
   THREAD_SEARCH_URL = "https://www.reddit.com/search?q=amazon.com&sort=new&t=hour&limit=100"
 
   THREAD_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})"
@@ -56,25 +56,15 @@ class RedditGatherer(Gatherer):
     ident = permalink.split("/")[8] #issues with accents
     return ident
 
-  def gather_comments(self):
+  def gather_comments_from_url(self, comment_url, page_count):
     try:
-      max_page_search = 5
-
-      comments = []
-      page_count = 0
-      next_comment_page_url = self.COMMENT_URL
-      while True:
-        response = requests.get(next_comment_page_url, headers=headers)
-        print "Status code: " + str(response.status_code)
-        if response.status_code != 200:
-          pass
-        result = BeautifulSoup(response.text, 'html.parser')
-        found_comments = result.find_all("div", class_="comment")
-        comments.extend(found_comments)
-        next_comment_page_url = result.find("span", class_="next-button").find("a")["href"]
-        page_count += 1
-        if page_count >= max_page_search:
-          break
+      response = requests.get(comment_url, headers=headers)
+      print "Status code: " + str(response.status_code)
+      if response.status_code != 200:
+        pass
+      result = BeautifulSoup(response.text, 'html.parser')
+      comments = result.find_all("div", class_="comment")
+      next_comment_page_url = result.find("span", class_="next-button").find("a")["href"]
 
       threads = []
       for comment in comments:
@@ -82,7 +72,16 @@ class RedditGatherer(Gatherer):
         threads.append((permalink, sci, html_string))
 
       threads.reverse()
-      return threads
+      return threads, next_comment_page_url
+    except Exception as e:
+      exc_type, exc_obj, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print(exc_type, fname, exc_tb.tb_lineno)
+      raise e
+
+  def gather_comments(self):
+    try:
+      return self.gather_comments_from_url(self.COMMENT_URL, 0)
     except Exception as e:
       exc_type, exc_obj, exc_tb = sys.exc_info()
       fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

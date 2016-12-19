@@ -26,6 +26,10 @@ def log_and_time(job_type):
 
       try:
         log_info = function(*args, **kwargs)
+
+        for key, val in log_info.iteritems():
+          setattr(scrape_log, key, val)
+
       except Exception as e:
         log_info = {}
         scrape_log.error = True
@@ -43,7 +47,6 @@ def log_and_time(job_type):
     return log_work
   return log_decorator #returning the decorator function
 
-
 @log_and_time("thread")
 def run_gather_threads():
   rg = RedditGatherer()
@@ -54,37 +57,49 @@ def run_gather_threads():
   start_ident = rg.find_site_thread_ident(threads[0][0])
   end_ident = rg.find_site_thread_ident(threads[-1][0])
 
-  comments_count = 0
+  comments_count = len(threads)
+  mentions_count = 0
   for thread_url, _, html_string in threads:
     if ae.check_possible_match(html_string):
-      print thread_url
-      comments_count += 1
+      mentions_count += 1
       q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=0)
     else:
       print "no match"
 
-  retval = {'pages_count': pages_count, 'start_ident': start_ident, 'end_ident': end_ident, 'comments_count': comments_count}
+  retval = {'pages_count': pages_count, 'start_ident': start_ident, 'end_ident': end_ident, 'comments_count': comments_count, 'mentions_count': mentions_count}
   return retval
 
-@log_and_time("comment")
+@log_and_time("comment_base")
 def run_gather_comments():
+  return gather_comments_work(RedditGatherer.COMMENT_URL, 0)
+
+@log_and_time("comment_url")
+def run_gather_comments_from_url(comment_url, page_count):
+  return gather_comments_work(comment_url, page_count)
+
+def gather_comments_work(comment_url, page_count):
+  max_page_count = 5
 
   rg = RedditGatherer()
   ae = AmazonExtractor()
-  threads = rg.gather_comments()
 
-  pages_count = 5 #all eight pages for now
+  threads, next_comments_page_url = rg.gather_comments_from_url(comment_url, page_count)
+
   start_ident = rg.find_site_comment_ident(threads[0][0])
   end_ident = rg.find_site_comment_ident(threads[-1][0])
 
-  comments_count = 0
+  comments_count = len(threads)
+  mentions_count = 0
   for thread_url, _, html_string in threads:
     if ae.check_possible_match(html_string):
-      print thread_url
-      comments_count += 1
+      mentions_count += 1
       q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=1)
 
-  retval = {'pages_count': pages_count, 'start_ident': start_ident, 'end_ident': end_ident, 'comments_count': comments_count}
+  page_count += 1
+  if page_count < max_page_count:
+    q.enqueue(run_gather_comments_from_url, next_comments_page_url, page_count)
+
+  retval = {'pages_count': 1, 'start_ident': start_ident, 'end_ident': end_ident, 'comments_count': comments_count, 'mentions_count': mentions_count}
   return retval
 
 @log_and_time("reddit_attrs")
@@ -104,7 +119,8 @@ def run_gather_attrs_from_url(thread_url, html_string, data_index=0):
     print "enququing extraction"
     q.enqueue(run_extract_mentions_from_attrs, attrs)
 
-  return
+  retval = {'start_ident': ident}
+  return retval
 
 @log_and_time("extract_amazon")
 def run_extract_mentions_from_attrs(attrs):
@@ -117,6 +133,6 @@ def run_extract_mentions_from_attrs(attrs):
   comments_count = 1 #one url
   mentions_count = len(asins)
 
-  retval = {'comments_count': comments_count, 'mentions_count': mentions_count}
+  retval = {'comments_count': comments_count, 'mentions_count': mentions_count, 'start_ident': ident}
   return retval
 
