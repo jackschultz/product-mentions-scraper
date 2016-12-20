@@ -85,21 +85,24 @@ def gather_comments_work(comment_url, page_count):
 
   threads, next_comments_page_url = rg.gather_comments_from_url(comment_url, page_count)
 
-  start_ident = rg.find_site_comment_ident(threads[0][0])
-  end_ident = rg.find_site_comment_ident(threads[-1][0])
+  if threads:
+    start_ident = rg.find_site_comment_ident(threads[0][0])
+    end_ident = rg.find_site_comment_ident(threads[-1][0])
 
-  comments_count = len(threads)
-  mentions_count = 0
-  for thread_url, _, html_string in threads:
-    if ae.check_possible_match(html_string):
-      mentions_count += 1
-      q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=1)
+    comments_count = len(threads)
+    mentions_count = 0
+    for thread_url, _, html_string in threads:
+      if ae.check_possible_match(html_string):
+        mentions_count += 1
+        q.enqueue(run_gather_attrs_from_url, thread_url, html_string, data_index=1)
 
-  page_count += 1
-  if page_count < max_page_count:
-    q.enqueue(run_gather_comments_from_url, next_comments_page_url, page_count)
+    page_count += 1
+    if page_count < max_page_count:
+      q.enqueue(run_gather_comments_from_url, next_comments_page_url, page_count)
 
-  retval = {'pages_count': 1, 'start_ident': start_ident, 'end_ident': end_ident, 'comments_count': comments_count, 'mentions_count': mentions_count}
+    retval = {'pages_count': 1, 'start_ident': start_ident, 'end_ident': end_ident, 'comments_count': comments_count, 'mentions_count': mentions_count}
+  else:
+    retval = {'pages_count': 1, 'start_ident': None, 'end_ident': None, 'comments_count': 0, 'mentions_count': 0, 'error_message': 'Nothing there'}
   return retval
 
 @log_and_time("reddit_attrs")
