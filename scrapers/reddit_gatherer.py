@@ -58,10 +58,8 @@ class RedditGatherer(Gatherer):
 
   def gather_comments_from_url(self, comment_url, page_count):
     try:
-      response = requests.get(comment_url, headers=headers)
+      response = self.get_url_with_retries(comment_url)
       print "Status code: " + str(response.status_code)
-      if response.status_code != 200:
-        pass
       result = BeautifulSoup(response.text, 'html.parser')
       comments = result.find_all("div", class_="comment")
       next_comment_page_url = result.find("span", class_="next-button").find("a")["href"]
@@ -90,7 +88,7 @@ class RedditGatherer(Gatherer):
 
   def gather_threads(self):
 
-    response = requests.get(self.THREAD_SEARCH_URL, headers=headers)
+    response = self.get_url_with_retries(self.THREAD_SEARCH_URL)
     result = BeautifulSoup(response.text, 'html.parser')
     #TODO check response code
     posts = result.find_all("div", class_="search-result-link")
@@ -106,7 +104,7 @@ class RedditGatherer(Gatherer):
 
   def gather_attrs_from_url(self, url, data_index=0):
     url = url + ".json"
-    response = requests.get(url, headers=headers)
+    response = self.get_url_with_retries(url)
     result = response.json()
     attrs = self.gather_data_from_result(result, data_index=data_index)
     return attrs
