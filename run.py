@@ -111,15 +111,17 @@ def run_gather_attrs_from_url(thread_url, html_string, data_index=0):
   elif data_index == 1:
     ident = rg.find_site_comment_ident(thread_url)
 
+  pages_count = 0
   comment = session.query(Comment).filter_by(site_comment_ident=ident).first()
   if not comment:
     #want to run the text through the matcher to see if we should waste time
     #and resources with the extraction
     attrs = rg.gather_attrs_from_url(thread_url, data_index=data_index)
+    pages_count = 1
     print "enququing extraction"
     q.enqueue(run_extract_mentions_from_attrs, attrs)
 
-  retval = {'start_ident': ident}
+  retval = {'start_ident': ident, 'pages_count': pages_count}
   return retval
 
 @log_and_time("extract_amazon")
