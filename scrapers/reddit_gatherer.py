@@ -62,6 +62,7 @@ class RedditGatherer(Gatherer):
       print "Status code: " + str(response.status_code)
       result = BeautifulSoup(response.text, 'html.parser')
       comments = result.find_all("div", class_="comment")
+      print "Comment count: {}".format(len(comments))
       next_comment_page_url = result.find("span", class_="next-button").find("a")["href"]
 
       threads = []

@@ -18,7 +18,7 @@ class Gatherer(object):
   def get_url_with_retries(self, url, max_tries=3):
     for attempt in range(max_tries):
       response = requests.get(url, headers=headers)
-      print "Requestion url ({}) try number {}, status code: {}".format(url, attempt, response.status_code)
+      print "Requesting url ({}) try number {}, status code: {}".format(url, attempt, response.status_code)
       if response.status_code == 200:
         return response
     else:
