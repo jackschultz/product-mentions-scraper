@@ -78,7 +78,7 @@ def run_gather_comments_from_url(comment_url, page_count):
   return gather_comments_work(comment_url, page_count)
 
 def gather_comments_work(comment_url, page_count):
-  max_page_count = 5
+  max_page_count = 3
 
   rg = RedditGatherer()
   ae = AmazonExtractor()
