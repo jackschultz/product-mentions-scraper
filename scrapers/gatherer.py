@@ -1,4 +1,5 @@
 import requests
+import time
 
 headers = {"User-Agent": "Product Mentions"}
 class Gatherer(object):
