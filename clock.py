@@ -18,7 +18,7 @@ def gather_comments():
   q.enqueue(run_gather_comments)
 
 sched.add_job(gather_comments)
-sched.add_job(gather_comments, 'interval', seconds=30)
+sched.add_job(gather_comments, 'interval', seconds=50)
 sched.add_job(gather_threads)
 sched.add_job(gather_threads, 'interval', minutes=15)
 sched.start()
