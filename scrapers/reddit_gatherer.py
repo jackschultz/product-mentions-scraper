@@ -19,9 +19,9 @@ import time
 headers = {"User-Agent": "Product Mentions"}
 class RedditGatherer(Gatherer):
 
-  BASE_URL = "http://www.reddit.com"
-  COMMENT_URL = "https://www.reddit.com/r/all/comments/?limit=100"
-  THREAD_SEARCH_URL = "https://www.reddit.com/search?q=amazon.com&sort=new&t=hour&limit=100"
+  BASE_URL = "http://old.reddit.com"
+  COMMENT_URL = "https://old.reddit.com/r/all/comments/?limit=100"
+  THREAD_SEARCH_URL = "https://old.reddit.com/search?q=amazon.com&sort=new&t=hour&limit=100"
 
   THREAD_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})"
   COMMENT_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})\/([a-zA-Z0-9_-]*)\/([a-zA-Z0-9]{7})"
