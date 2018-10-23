@@ -10,9 +10,6 @@ class Gatherer(object):
   def __str__(self):
     ""
 
-  def gather_threads(self):
-    pass
-
   def gather_comments(self):
     pass
 
@@ -25,3 +22,4 @@ class Gatherer(object):
     else:
         time.sleep(2)
     return response #return it anyway and get error
+

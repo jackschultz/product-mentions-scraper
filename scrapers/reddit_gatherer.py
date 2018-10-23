@@ -19,9 +19,9 @@ import time
 headers = {"User-Agent": "Product Mentions"}
 class RedditGatherer(Gatherer):
 
-  BASE_URL = "http://www.reddit.com"
-  COMMENT_URL = "https://www.reddit.com/r/all/comments/?limit=100"
-  THREAD_SEARCH_URL = "https://www.reddit.com/search?q=amazon.com&sort=new&t=hour&limit=100"
+  BASE_URL = "http://old.reddit.com"
+  COMMENT_URL = "https://old.reddit.com/r/all/comments/?limit=100"
+  THREAD_SEARCH_URL = "https://old.reddit.com/search?q=amazon.com&sort=new&t=hour&limit=100"
 
   THREAD_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})"
   COMMENT_SITE_IDENT_MATCHER = "(https|http)(:\/\/www.reddit.com\/r\/)([a-zA-Z0-9_-]*)\/(comments)\/([a-zA-Z0-9]{6})\/([a-zA-Z0-9_-]*)\/([a-zA-Z0-9]{7})"
@@ -47,6 +47,7 @@ class RedditGatherer(Gatherer):
     return (permalink, ident, html_string)
 
   def find_site_thread_ident(self, permalink):
+    print permalink
     #ident = re.match(self.THREAD_SITE_IDENT_MATCHER, permalink).groups()[4]
     ident = permalink.split("/")[6] #issues with accents
     return ident
@@ -94,7 +95,6 @@ class RedditGatherer(Gatherer):
       raise e
 
   def gather_threads(self):
-
     response = self.get_url_with_retries(self.THREAD_SEARCH_URL)
     result = BeautifulSoup(response.text, 'html.parser')
     #TODO check response code
@@ -106,7 +106,6 @@ class RedditGatherer(Gatherer):
       threads.append((permalink, sti, html_string))
 
     threads.reverse()
-
     return threads
 
   def gather_attrs_from_url(self, url, data_index=0):
